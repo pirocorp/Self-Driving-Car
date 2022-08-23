@@ -1,0 +1,25 @@
+// "sourceMap": true
+
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "ESNEXT",
+        "moduleResolution": "node",
+        "rootDir": "./",
+        "strict": true,
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}

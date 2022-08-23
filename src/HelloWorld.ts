@@ -1,0 +1,1 @@
+export const helloWorld = () => document.getElementsByTagName('body')[0].innerHTML = '<h1>Hello World</h1>';
