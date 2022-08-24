@@ -1,11 +1,11 @@
 import { Color } from "../Color";
-import { getCarColor, polyIntersect } from "../utils/helpers";
-import { IPoint } from "../Point/IPoint";
+import { getCarColor } from "../utils/helpers";
+import { IPoint } from "../2D/Point/IPoint";
 import { Sensor } from "./Sensor/Sensor";
 import { Controls } from "./Controls/Controls";
 import { ControlType } from "./Controls/ControlType";
-import { IRay } from "./Sensor/IRay";
-import { Ray } from "./Sensor/Ray";
+import { Segment } from "../2D/Segment";
+import { Polygon } from "../2D/Polygon";
 
 export class Car {
     private readonly acceleration: number = 0.2;
@@ -21,7 +21,7 @@ export class Car {
     private controls: Controls;
 
     public angle: number;
-    public polygon: IPoint[];
+    public polygon: Polygon;
 
     /**
      * 
@@ -46,7 +46,7 @@ export class Car {
             this.damaged = false;
             this.useBrain = controlType == ControlType.AI;
             this.color = getCarColor(color);
-            this.polygon = [];
+            this.polygon = this.createPolygon();
 
             if(controlType != ControlType.DUMMY) {
                 this.sensor = new Sensor(this);
@@ -70,7 +70,7 @@ export class Car {
         this.updateDrawing(ctx, drawSensor);
     }
 
-    public update(roadBorders: IRay[], traffic: Car[]): void {
+    public update(roadBorders: Segment[], traffic: Car[]): void {
         if (!this.damaged) {
             this.move();
             this.polygon = this.createPolygon();
@@ -82,7 +82,7 @@ export class Car {
         }
     }
 
-    private createPolygon(): IPoint[] {
+    private createPolygon(): Polygon {
         const points: IPoint[] = [];
 
         const rad = Math.hypot(this.width, this.height) / 2;
@@ -110,7 +110,7 @@ export class Car {
 
         points.push(topRight, topLeft, bottomLeft, bottomRight);
 
-        return points;
+        return new Polygon(points);
     }
 
     private defaultDrawing(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void {
@@ -141,10 +141,10 @@ export class Car {
         }
 
         ctx.beginPath();
-        ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
+        ctx.moveTo(this.polygon.points[0].x, this.polygon.points[0].y);
 
-        for (let i = 1; i < this.polygon.length; i++) {
-            ctx.lineTo(this.polygon[i].x, this.polygon[i].y)
+        for (let i = 1; i < this.polygon.points.length; i++) {
+            ctx.lineTo(this.polygon.points[i].x, this.polygon.points[i].y)
         }
 
         ctx.fill();
@@ -199,9 +199,9 @@ export class Car {
         this._y -= Math.cos(this.angle) * this.speed;
     }
 
-    private assessDamage(roadBorders: IRay[], traffic: Car[]): boolean {
+    private assessDamage(roadBorders: Segment[], traffic: Car[]): boolean {
         for (let i = 0; i < roadBorders.length; i++) {
-            const intersection = Ray.touchPolygon(roadBorders[i], this.polygon)
+            const intersection = Segment.intersectPolygon(roadBorders[i], this.polygon)
 
             if (intersection) {
                 return true;
@@ -209,7 +209,7 @@ export class Car {
         }
 
         for (let i = 0; i < traffic.length; i++) {
-            if (polyIntersect(this.polygon, traffic[i].polygon)) {
+            if (Polygon.intersect(this.polygon, traffic[i].polygon)) {
                 return true;
             }
         }

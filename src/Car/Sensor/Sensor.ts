@@ -1,21 +1,19 @@
 import { Car } from "../Car";
-import { IntersectionPoint } from "../../Point/IntersectionPoint";
-import { Ray } from "./Ray";
-import { Point } from "../../Point/Point";
-import { getIntersection, lerp } from "../../utils/helpers";
-import { IRay } from "./IRay";
+import { IntersectionPoint } from "../../2D/Point/IntersectionPoint";
+import { Segment } from "../../2D/Segment";
+import { Point } from "../../2D/Point/Point";
 
 export class Sensor {
     private readonly rayLength = 150;
     private readonly raySpread = Math.PI / 2;
 
-    private rays: Ray[] = [];
+    private rays: Segment[] = [];
     private readings: IntersectionPoint[] = [];
 
     constructor(private car: Car, private readonly rayCount = 5){
     }
 
-    public update(roadBorders: IRay[], traffic: Car[]): void {
+    public update(roadBorders: Segment[], traffic: Car[]): void {
         this.castRays();
 
         this.readings = [];
@@ -66,23 +64,24 @@ export class Sensor {
             const B = - this.raySpread / 2;            
             const percentage = this.rayCount == 1 ? 0.5 : i / (this.rayCount - 1);
 
-            const rayAngle = lerp(A, B, percentage) + this.car.angle;
+            const rayAngle = Point.learpCoordinate(A, B, percentage) + this.car.angle;
 
             const endX = this.car.x - Math.sin(rayAngle) * this.rayLength;
             const endY = this.car.y - Math.cos(rayAngle) * this.rayLength;
 
             const end = new Point(endX, endY);
-            const ray = new Ray(start, end);
+            const ray = new Segment(start, end);
 
             this.rays.push(ray);
         }        
     }
 
-    private getReading(ray: Ray, roadBorders: IRay[], traffic: Car[]): IntersectionPoint | null{        
+    private getReading(ray: Segment, roadBorders: Segment[], traffic: Car[]): IntersectionPoint | null{        
         let touches: IntersectionPoint[] = [];
 
-        for (let i = 0; i < roadBorders.length; i++) {
-            const touch = Ray.touchRay(ray, roadBorders[i]);
+        for (let i = 0; i < roadBorders.length; i++) {           
+
+            const touch = Segment.intersectSegment(ray, roadBorders[i]);
 
             if (touch) {
                 touches.push(touch);
@@ -92,7 +91,7 @@ export class Sensor {
         for (let i = 0; i < traffic.length; i++) {
             const poly = traffic[i].polygon;
     
-            const touch = Ray.touchPolygon(ray, poly);
+            const touch = Segment.intersectPolygon(ray, poly);
     
             if (touch) {
                 touches.push(touch);

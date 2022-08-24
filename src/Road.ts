@@ -1,7 +1,5 @@
-import { IRay } from "./Car/Sensor/IRay";
-import { Ray } from "./Car/Sensor/Ray";
-import { Point } from "./Point/Point";
-import { lerp } from "./utils/helpers";
+import { Segment } from "./2D/Segment";
+import { Point } from "./2D/Point/Point";
 
 export class Road {
     private readonly infinity = 1000000;
@@ -11,7 +9,7 @@ export class Road {
     private top: number;
     private bottom: number;
     
-    public borders: IRay[];
+    public borders: Segment[];
 
     /**
      * 
@@ -32,8 +30,8 @@ export class Road {
         const bottomRight: Point = new Point(this.right, this.bottom);
 
         this.borders = [
-            new Ray(topLeft, bottomLeft), 
-            new Ray(topRight, bottomRight)
+            new Segment(topLeft, bottomLeft), 
+            new Segment(topRight, bottomRight)
         ];
     }
 
@@ -50,7 +48,7 @@ export class Road {
         ctx.strokeStyle = "white";
 
         for (let i = 1; i < this.laneCount; i++) {
-            const x = lerp(this.left, this.right, i / this.laneCount);
+            const x = Point.learpCoordinate(this.left, this.right, i / this.laneCount);
 
             ctx.setLineDash([20, 20]);
             ctx.beginPath();
