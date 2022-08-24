@@ -2,6 +2,7 @@ import { Car } from "./Car/Car";
 import { ControlType } from "./Car/Controls/ControlType";
 import { Color } from "./Color";
 import { Road } from "./Road";
+import { Visualizer } from "./Visualizer";
 
 const carCanvas = <HTMLCanvasElement>document.getElementById('car-canvas');
 carCanvas.width = 200;
@@ -47,5 +48,6 @@ function animate(carCtx: CanvasRenderingContext2D, networkCtx: CanvasRenderingCo
     car.draw(carCtx, true);
 
     carCtx.restore();
+    Visualizer.drawNetwork(networkCtx, car.brain)
     requestAnimationFrame(() => animate(carCtx, networkCtx));
 }

@@ -6,6 +6,7 @@ import { Controls } from "./Controls/Controls";
 import { ControlType } from "./Controls/ControlType";
 import { Segment } from "../2D/Segment";
 import { Polygon } from "../2D/Polygon";
+import { NeuralNetwork } from "../AI/NeuralNetwork";
 
 export class Car {
     private readonly acceleration: number = 0.2;
@@ -14,14 +15,13 @@ export class Car {
     private speed: number;
     private damaged: boolean;
     private useBrain: boolean;
-    private color: string;   
-
-    private sensor: Sensor | null = null;
-    private brain: null = null;
+    private color: string; 
+    public angle: number;
+    public polygon: Polygon;  
     private controls: Controls;
 
-    public angle: number;
-    public polygon: Polygon;
+    private sensor: Sensor | null = null;
+    private _brain: NeuralNetwork | null = null;
 
     /**
      * 
@@ -51,7 +51,8 @@ export class Car {
             if(controlType != ControlType.DUMMY) {
                 this.sensor = new Sensor(this);
 
-                // TODO: Add AI (brain)
+                // One 'hidden' layer with 6 neurons
+                this._brain = new NeuralNetwork([this.sensor.rayCount, 6, 4])
             }
 
             this.controls = new Controls(controlType);
@@ -67,7 +68,7 @@ export class Car {
 
     public draw(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void{       
         //this.defaultDrawing(ctx, drawSensor);
-        this.updateDrawing(ctx, drawSensor);
+        this.defaultDrawing(ctx, drawSensor);
     }
 
     public update(roadBorders: Segment[], traffic: Car[]): void {
@@ -79,7 +80,23 @@ export class Car {
 
         if(this.sensor) {
             this.sensor.update(roadBorders, traffic);
+
+            if(this._brain){
+                const outputs = NeuralNetwork.feedForward(this.sensor.readings, this._brain)
+                    .map(x => x > 0 ? true : false);
+
+                if(this.useBrain) {
+                    this.controls.forward = outputs[0];
+                    this.controls.left = outputs[1];
+                    this.controls.right = outputs[2];
+                    this.controls.reverse = outputs[3];
+                }
+            }
         }
+    }
+
+    public get brain(): NeuralNetwork | null {
+        return this._brain;
     }
 
     private createPolygon(): Polygon {
@@ -113,7 +130,7 @@ export class Car {
         return new Polygon(points);
     }
 
-    private defaultDrawing(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void {
+    private defaultDrawing2(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void {
         ctx.save();
 
         ctx.translate(this.x, this.y);
@@ -133,7 +150,7 @@ export class Car {
         this.sensor?.draw(ctx);
     }
 
-    private updateDrawing(ctx: CanvasRenderingContext2D, drawSensor: boolean = false) {
+    private defaultDrawing(ctx: CanvasRenderingContext2D, drawSensor: boolean = false) {
         if (this.damaged) {
             ctx.fillStyle = Color.Gray;
         } else {
@@ -149,7 +166,7 @@ export class Car {
 
         ctx.fill();
 
-        if (this.sensor) {
+        if (this.sensor && drawSensor) {
             this.sensor.draw(ctx);
         }
     }

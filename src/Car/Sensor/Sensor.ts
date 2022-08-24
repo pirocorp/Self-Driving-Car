@@ -8,29 +8,37 @@ export class Sensor {
     private readonly raySpread = Math.PI / 2;
 
     private rays: Segment[] = [];
-    private readings: IntersectionPoint[] = [];
+    private _readings: IntersectionPoint[] = [];
 
-    constructor(private car: Car, private readonly rayCount = 5){
+    constructor(private car: Car, private readonly _rayCount = 5){
+    }
+
+    public get rayCount(): number {
+        return this._rayCount;
+    }
+
+    public get readings(): number[] {
+        return this._readings.map(x => x == null ? 0 : 1 - x.offset);
     }
 
     public update(roadBorders: Segment[], traffic: Car[]): void {
         this.castRays();
 
-        this.readings = [];
+        this._readings = [];
 
         for (let i = 0; i < this.rays.length; i++) {
             const reading = this.getReading(this.rays[i], roadBorders, traffic);
 
-            this.readings.push(reading as IntersectionPoint);          
+            this._readings.push(reading as IntersectionPoint);          
         }        
     }
 
     public draw(ctx: CanvasRenderingContext2D) {        
-        for (let i = 0; i < this.rayCount; i++) {
+        for (let i = 0; i < this._rayCount; i++) {
             let end = this.rays[i].end;        
 
-            if (this.readings[i]) {
-                end = this.readings[i];
+            if (this._readings[i]) {
+                end = this._readings[i];
             }
 
             ctx.beginPath();
@@ -57,12 +65,12 @@ export class Sensor {
     private castRays(): void {
         this.rays = [];
 
-        for (let i = 0; i < this.rayCount; i++) {
+        for (let i = 0; i < this._rayCount; i++) {
             const start = new Point(this.car.x, this.car.y);
 
             const A = this.raySpread / 2;
             const B = - this.raySpread / 2;            
-            const percentage = this.rayCount == 1 ? 0.5 : i / (this.rayCount - 1);
+            const percentage = this._rayCount == 1 ? 0.5 : i / (this._rayCount - 1);
 
             const rayAngle = Point.learpCoordinate(A, B, percentage) + this.car.angle;
 
