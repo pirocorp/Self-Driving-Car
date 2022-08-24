@@ -1,6 +1,5 @@
 import { IRay } from "./Car/Sensor/IRay";
 import { Ray } from "./Car/Sensor/Ray";
-import { IPoint } from "./Point/IPoint";
 import { Point } from "./Point/Point";
 import { lerp } from "./utils/helpers";
 

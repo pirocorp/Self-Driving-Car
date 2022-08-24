@@ -1,41 +1,57 @@
 import { ControlType } from "./ControlType";
 
 export class Controls {
-    private forward: boolean;
-    private left: boolean;
-    private right: boolean;
-    private reverse: boolean;
+    private _forward: boolean;
+    private _left: boolean;
+    private _right: boolean;
+    private _reverse: boolean;
 
     constructor(controlType: ControlType) {
-        this.forward = false;
-        this.left = false;
-        this.right = false;
-        this.reverse = false;
+        this._forward = false;
+        this._left = false;
+        this._right = false;
+        this._reverse = false;
 
         switch(controlType) {
             case ControlType.KEYS:
                 this.addKeyboardListeners();
                 break;
             case ControlType.DUMMY:
-                this.forward = true;
+                this._forward = true;
                 break;
         }
+    }
+
+    public get forward() {
+        return this._forward;
+    }
+
+    public get left() {
+        return this._left;
+    }
+
+    public get right() {
+        return this._right;
+    }
+
+    public get reverse() {
+        return this._reverse;
     }
 
     private addKeyboardListeners(): void {
         document.onkeydown = (event) => {
             switch (event.key) {
                 case "ArrowLeft":
-                    this.left = true;
+                    this._left = true;
                     break;
                 case "ArrowRight":
-                    this.right = true;
+                    this._right = true;
                     break;
                 case "ArrowUp":
-                    this.forward = true;
+                    this._forward = true;
                     break;
                 case "ArrowDown":
-                    this.reverse = true;
+                    this._reverse = true;
                     break;
             }
         };
@@ -43,16 +59,16 @@ export class Controls {
         document.onkeyup = (event) => {
             switch (event.key) {
                 case "ArrowLeft":
-                    this.left = false;
+                    this._left = false;
                     break;
                 case "ArrowRight":
-                    this.right = false;
+                    this._right = false;
                     break;
                 case "ArrowUp":
-                    this.forward = false;
+                    this._forward = false;
                     break;
                 case "ArrowDown":
-                    this.reverse = false;
+                    this._reverse = false;
                     break;
             }
         };
