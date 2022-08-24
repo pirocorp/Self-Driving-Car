@@ -32,6 +32,25 @@ export const getIntersection = (A: IPoint, B: IPoint, C: IPoint, D: IPoint): Int
     return null;
 };
 
+export const polyIntersect = (poly1: IPoint[], poly2: IPoint[]) => {
+    for (let i = 0; i < poly1.length; i++) {
+        for (let j = 0; j < poly2.length; j++) {
+            const A = poly1[i];
+            const B = poly1[(i + 1) % poly1.length];
+            const C = poly2[j];
+            const D = poly2[(j + 1) % poly2.length];
+
+            const touch = getIntersection(A, B, C, D);
+
+            if (touch) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 // Generate Car colors
 export const getCarColor = (color: Color): string => {
     if(color != Color.Random){

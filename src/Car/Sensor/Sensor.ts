@@ -21,7 +21,7 @@ export class Sensor {
         this.readings = [];
 
         for (let i = 0; i < this.rays.length; i++) {
-            const reading = this.getReading(this.rays[i], roadBorders);
+            const reading = this.getReading(this.rays[i], roadBorders, traffic);
 
             this.readings.push(reading as IntersectionPoint);          
         }        
@@ -78,7 +78,7 @@ export class Sensor {
         }        
     }
 
-    private getReading(ray: Ray, roadBorders: IRay[], traffic: Car[] = []): IntersectionPoint | null{
+    private getReading(ray: Ray, roadBorders: IRay[], traffic: Car[]): IntersectionPoint | null{        
         let touches: IntersectionPoint[] = [];
 
         for (let i = 0; i < roadBorders.length; i++) {
@@ -106,32 +106,6 @@ export class Sensor {
             const minOffset = Math.min(...offsets);
 
             return touches.find(e => e.offset == minOffset) ?? null;
-        }
-    }
-
-    private getReading2(ray: Ray, roadBorders: IRay[]) {
-        let touches = [];
-
-        for (let i = 0; i < roadBorders.length; i++) {
-            const touch = getIntersection(
-                ray.start,
-                ray.end,
-                roadBorders[i].start,
-                roadBorders[i].end
-            );      
-
-            if (touch) {
-                touches.push(touch);
-            }
-        }
-
-        if (touches.length == 0) {
-            return null;
-        } else {
-            const offsets = touches.map(e => e.offset);
-            const minOffset = Math.min(...offsets);
-
-            return touches.find(e => e.offset == minOffset);
         }
     }
 }

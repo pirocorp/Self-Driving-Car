@@ -1,10 +1,11 @@
 import { Color } from "../Color";
-import { getCarColor } from "../utils/helpers";
+import { getCarColor, polyIntersect } from "../utils/helpers";
 import { IPoint } from "../Point/IPoint";
 import { Sensor } from "./Sensor/Sensor";
 import { Controls } from "./Controls/Controls";
 import { ControlType } from "./Controls/ControlType";
 import { IRay } from "./Sensor/IRay";
+import { Ray } from "./Sensor/Ray";
 
 export class Car {
     private readonly acceleration: number = 0.2;
@@ -65,14 +66,15 @@ export class Car {
     }
 
     public draw(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void{       
-        this.defaultDrawing(ctx, drawSensor);
+        //this.defaultDrawing(ctx, drawSensor);
+        this.updateDrawing(ctx, drawSensor);
     }
 
     public update(roadBorders: IRay[], traffic: Car[]): void {
-        this.move();
-
         if (!this.damaged) {
+            this.move();
             this.polygon = this.createPolygon();
+            this.damaged = this.assessDamage(roadBorders, traffic);
         }
 
         if(this.sensor) {
@@ -131,6 +133,27 @@ export class Car {
         this.sensor?.draw(ctx);
     }
 
+    private updateDrawing(ctx: CanvasRenderingContext2D, drawSensor: boolean = false) {
+        if (this.damaged) {
+            ctx.fillStyle = Color.Gray;
+        } else {
+            ctx.fillStyle = this.color;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
+
+        for (let i = 1; i < this.polygon.length; i++) {
+            ctx.lineTo(this.polygon[i].x, this.polygon[i].y)
+        }
+
+        ctx.fill();
+
+        if (this.sensor) {
+            this.sensor.draw(ctx);
+        }
+    }
+
     private move(): void {
         if (this.controls.forward) {
             this.speed += this.acceleration;
@@ -174,5 +197,23 @@ export class Car {
 
         this._x -= Math.sin(this.angle) * this.speed;
         this._y -= Math.cos(this.angle) * this.speed;
+    }
+
+    private assessDamage(roadBorders: IRay[], traffic: Car[]): boolean {
+        for (let i = 0; i < roadBorders.length; i++) {
+            const intersection = Ray.touchPolygon(roadBorders[i], this.polygon)
+
+            if (intersection) {
+                return true;
+            }
+        }
+
+        for (let i = 0; i < traffic.length; i++) {
+            if (polyIntersect(this.polygon, traffic[i].polygon)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
