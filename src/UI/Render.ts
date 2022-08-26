@@ -1,4 +1,3 @@
-import { Fitness } from "../AI/Fitness";
 import { Car } from "../Car/Car";
 
 import { Visualizer } from "./Visualizer";
@@ -8,7 +7,8 @@ import { Road } from "./Road";
 export class Render {
     private carCtx: CanvasRenderingContext2D;
     private networkCtx: CanvasRenderingContext2D;
-    private bestCar: Car | null = null;
+
+    private bestCar: Car|null = null;    
 
     constructor(
         private carCanvas: HTMLCanvasElement, 
@@ -19,7 +19,9 @@ export class Render {
         this.attachEventListeners();
     }
 
-    public render(traffic: Car[], road: Road, cars: Car[], timestamp: number): void {
+    public render(traffic: Car[], road: Road, cars: Car[], bestCar: Car, timestamp: number): void {
+        this.bestCar = bestCar;
+
         for (let i = 0; i < traffic.length; i++) {
             traffic[i].update(road.borders, []);
         }
@@ -30,13 +32,13 @@ export class Render {
         }
 
         // Fitness function
-        this.bestCar = Fitness.fit(cars);
+        // this.bestCar = Fitness.fit(cars);
 
         this.carCanvas.height = window.innerHeight;
         this.networkCanvas.height = window.innerHeight;
 
         this.carCtx.save();
-        this.carCtx.translate(0, -this.bestCar.y + this.carCanvas.height * 0.7);
+        this.carCtx.translate(0, -bestCar.y + this.carCanvas.height * 0.7);
 
         road.draw(this.carCtx);
 
@@ -52,12 +54,12 @@ export class Render {
         }
 
         this.carCtx.globalAlpha = 1;
-        this.bestCar.draw(this.carCtx, true);
+        bestCar.draw(this.carCtx, true);
 
         this.carCtx.restore();
 
         this.networkCtx.lineDashOffset = - timestamp / 50;       
-        Visualizer.drawNetwork(this.networkCtx, this.bestCar.brain)        
+        Visualizer.drawNetwork(this.networkCtx, bestCar.brain);        
     }
 
     private attachEventListeners() {
