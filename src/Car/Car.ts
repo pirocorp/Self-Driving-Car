@@ -1,5 +1,4 @@
 import { Color } from "../Color";
-import { getCarColor } from "../utils/helpers";
 import { IPoint } from "../2D/Point/IPoint";
 import { Sensor } from "./Sensor/Sensor";
 import { Controls } from "./Controls/Controls";
@@ -12,6 +11,8 @@ export class Car {
     private readonly acceleration: number = 0.2;
     private readonly friction: number = 0.05;
 
+    public brain: NeuralNetwork | null = null;
+
     private speed: number;
     private damaged: boolean;
     private useBrain: boolean;
@@ -20,8 +21,7 @@ export class Car {
     public polygon: Polygon;  
     private controls: Controls;
 
-    private sensor: Sensor | null = null;
-    private _brain: NeuralNetwork | null = null;
+    private sensor: Sensor | null = null;    
 
     /**
      * 
@@ -45,14 +45,14 @@ export class Car {
             this.angle = 0;
             this.damaged = false;
             this.useBrain = controlType == ControlType.AI;
-            this.color = getCarColor(color);
+            this.color = this.getCarColor(color);
             this.polygon = this.createPolygon();
 
             if(controlType != ControlType.DUMMY) {
                 this.sensor = new Sensor(this);
 
                 // One 'hidden' layer with 6 neurons
-                this._brain = new NeuralNetwork([this.sensor.rayCount, 6, 4])
+                this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 4])
             }
 
             this.controls = new Controls(controlType);
@@ -81,8 +81,8 @@ export class Car {
         if(this.sensor) {
             this.sensor.update(roadBorders, traffic);
 
-            if(this._brain){
-                const outputs = NeuralNetwork.feedForward(this.sensor.readings, this._brain)
+            if(this.brain){
+                const outputs = NeuralNetwork.feedForward(this.sensor.readings, this.brain)
                     .map(x => x > 0 ? true : false);
 
                 if(this.useBrain) {
@@ -93,10 +93,6 @@ export class Car {
                 }
             }
         }
-    }
-
-    public get brain(): NeuralNetwork | null {
-        return this._brain;
     }
 
     private createPolygon(): Polygon {
@@ -232,5 +228,15 @@ export class Car {
         }
 
         return false;
+    }
+
+    private getCarColor(color: Color): string {
+        if (color != Color.Random) {
+            return color as string;
+        }
+
+        const hue = 290 + Math.random() * 260;
+
+        return `hsl(${hue}, 100%, 60%)`;
     }
 }

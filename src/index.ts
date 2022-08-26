@@ -1,53 +1,40 @@
+import { Generation } from "./AI/Generation";
 import { Car } from "./Car/Car";
 import { ControlType } from "./Car/Controls/ControlType";
 import { Color } from "./Color";
+import { Render } from "./Render";
 import { Road } from "./Road";
-import { Visualizer } from "./Visualizer";
 
 const carCanvas = <HTMLCanvasElement>document.getElementById('car-canvas');
 carCanvas.width = 200;
 
 const networkCanvas = <HTMLCanvasElement>document.getElementById('network-canvas');
-networkCanvas.width = 800;
-
-const carCtx = carCanvas.getContext('2d');
-const networkCtx = networkCanvas.getContext('2d');
-
-if (carCtx == null || networkCtx == null) {
-    throw new Error('No car or network canvas');
-}
+networkCanvas.width = 400;
 
 const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
-const car = new Car(road.getLaneCenter(1), 100, 30, 50, ControlType.KEYS);
 
-const traffic = [
-    new Car(road.getLaneCenter(1), -100, 30, 50, ControlType.DUMMY, 2, Color.Red)
+const count = 1000;
+const cars = Generation.generateCars(count, road.getLaneCenter(1));
+
+const traffic: Car[] = [
+    new Car(road.getLaneCenter(1), -100, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(0), -300, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(2), -300, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(0), -500, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(1), -500, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(1), -700, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(2), -700, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(0), -1300, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(1), -900, 30, 50, ControlType.DUMMY, 2, Color.Random),
+    new Car(road.getLaneCenter(2), -1300, 30, 50, ControlType.DUMMY, 2, Color.Random),
 ];
 
-animate(carCtx, networkCtx);
+const renderer = new Render(carCanvas, networkCanvas);
+animate(0);
 
-function animate(carCtx: CanvasRenderingContext2D, networkCtx: CanvasRenderingContext2D): void {
-    for (let i = 0; i < traffic.length; i++) {
-        traffic[i].update(road.borders, []);
-    }
+function animate(timestamp: number) {
+    renderer.render(traffic, road, cars, timestamp);
 
-    car.update(road.borders, traffic);
-
-    carCanvas.height = window.innerHeight;
-    networkCanvas.height = window.innerHeight;
-
-    carCtx.save();
-    carCtx.translate(0, -car.y + carCanvas.height * 0.7);
-
-    road.draw(carCtx);
-
-    for (let i = 0; i < traffic.length; i++) {
-        traffic[i].draw(carCtx);
-    }
-
-    car.draw(carCtx, true);
-
-    carCtx.restore();
-    Visualizer.drawNetwork(networkCtx, car.brain)
-    requestAnimationFrame(() => animate(carCtx, networkCtx));
+    requestAnimationFrame(animate);
 }
+

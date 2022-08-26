@@ -14,7 +14,7 @@ export class Visualizer {
         const left = margin;
         const top = margin;
         const width = ctx.canvas.width - margin * 2;
-        const height = ctx.canvas.height - margin * 2;
+        const height = ctx.canvas.height - margin * 2;      
 
         const levelHeight = height / network.levels.length;
 
