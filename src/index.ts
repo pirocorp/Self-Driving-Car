@@ -37,4 +37,3 @@ function animate(timestamp: number) {
 
     requestAnimationFrame(animate);
 }
-

@@ -20,6 +20,8 @@ export class Car {
     public angle: number;
     public polygon: Polygon;  
     private controls: Controls;
+    private image: HTMLImageElement;
+    private mask: HTMLCanvasElement;
 
     private sensor: Sensor | null = null;    
 
@@ -56,6 +58,11 @@ export class Car {
             }
 
             this.controls = new Controls(controlType);
+
+            this.image = new Image();
+            this.mask = document.createElement("canvas");
+
+            this.loadCarImage();
     }
 
     public get x() {
@@ -66,9 +73,12 @@ export class Car {
         return this._y;
     }
 
-    public draw(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void{       
-        //this.defaultDrawing(ctx, drawSensor);
-        this.defaultDrawing(ctx, drawSensor);
+    public draw(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void{    
+        if(this.image){
+            this.imageDrawing(ctx, drawSensor);
+        } else {
+            this.defaultDrawing(ctx, drawSensor);
+        }    
     }
 
     public update(roadBorders: Segment[], traffic: Car[]): void {
@@ -126,24 +136,34 @@ export class Car {
         return new Polygon(points);
     }
 
-    private defaultDrawing2(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void {
+    private imageDrawing(ctx: CanvasRenderingContext2D, drawSensor: boolean = false): void {
+        if (this.sensor && drawSensor) {
+            this.sensor.draw(ctx);
+        }
+
         ctx.save();
-
         ctx.translate(this.x, this.y);
-        ctx.rotate(- this.angle);
+        ctx.rotate(-this.angle);
 
-        ctx.beginPath();
+        if (!this.damaged) {
+            ctx.drawImage(
+                this.mask,
+                - this.width / 2,
+                - this.height / 2,
+                this.width,
+                this.height);
 
-        const carX = -this.width / 2;
-        const carY = -this.height / 2;
+            ctx.globalCompositeOperation = "multiply";
+        }
 
-        ctx.rect(carX, carY, this.width, this.height);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-
+        ctx.drawImage(
+            this.image,
+            - this.width / 2,
+            - this.height / 2,
+            this.width,
+            this.height);
+        
         ctx.restore();
-
-        this.sensor?.draw(ctx);
     }
 
     private defaultDrawing(ctx: CanvasRenderingContext2D, drawSensor: boolean = false) {
@@ -238,5 +258,29 @@ export class Car {
         const hue = 290 + Math.random() * 260;
 
         return `hsl(${hue}, 100%, 60%)`;
+    }
+
+    private loadCarImage() {        
+        this.image.src = "../../assets/img/car.png";
+
+        this.mask.width = this.width;
+        this.mask.height = this.height;
+
+        const maskCtx = this.mask.getContext("2d");
+
+        if(maskCtx == null){
+            return
+        }
+
+        const imageLoadHandler = () => {
+            maskCtx.fillStyle = this.color;
+            maskCtx.rect(0, 0, this.width, this.height);
+            maskCtx.fill();
+
+            maskCtx.globalCompositeOperation = "destination-atop";
+            maskCtx.drawImage(this.image, 0, 0, this.width, this.height);
+        };
+
+        this.image.onload = imageLoadHandler;
     }
 }
