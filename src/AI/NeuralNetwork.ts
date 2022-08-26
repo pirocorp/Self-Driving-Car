@@ -28,7 +28,7 @@ export class NeuralNetwork {
         return outputs;
     }    
 
-    public static mutate(network: NeuralNetwork, amount: number = 1){
+    public static mutate(network: NeuralNetwork, amount: number = 1): void{
         network._levels.forEach(level => {
             for (let i = 0; i < level.biases.length; i++) {                
                 level.biases[i] = Point.learpCoordinate(level.biases[i], Math.random() * 2 - 1, amount);

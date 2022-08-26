@@ -1,6 +1,6 @@
-import { Point } from "./2D/Point/Point";
-import { Level } from "./AI/Level";
-import { NeuralNetwork } from "./AI/NeuralNetwork";
+import { Point } from "../2D/Point/Point";
+import { Level } from "../AI/Level";
+import { NeuralNetwork } from "../AI/NeuralNetwork";
 
 export class Visualizer {
 

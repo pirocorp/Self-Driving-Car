@@ -1,5 +1,5 @@
-import { Segment } from "./2D/Segment";
-import { Point } from "./2D/Point/Point";
+import { Segment } from "../2D/Segment";
+import { Point } from "../2D/Point/Point";
 
 export class Road {
     private readonly infinity = 1000000;

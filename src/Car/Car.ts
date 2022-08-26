@@ -1,4 +1,4 @@
-import { Color } from "../Color";
+import { Color } from "../UI/Color";
 import { IPoint } from "../2D/Point/IPoint";
 import { Sensor } from "./Sensor/Sensor";
 import { Controls } from "./Controls/Controls";

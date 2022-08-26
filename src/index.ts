@@ -1,9 +1,9 @@
 import { Generation } from "./AI/Generation";
 import { Car } from "./Car/Car";
 import { ControlType } from "./Car/Controls/ControlType";
-import { Color } from "./Color";
-import { Render } from "./Render";
-import { Road } from "./Road";
+import { Color } from "./UI/Color";
+import { Render } from "./UI/Render";
+import { Road } from "./UI/Road";
 
 const carCanvas = <HTMLCanvasElement>document.getElementById('car-canvas');
 carCanvas.width = 200;
@@ -13,7 +13,7 @@ networkCanvas.width = 400;
 
 const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
 
-const count = 1000;
+const count = 100;
 const cars = Generation.generateCars(count, road.getLaneCenter(1));
 
 const traffic: Car[] = [

@@ -1,8 +1,9 @@
-import { Fitness } from "./AI/Fitness";
-import { Car } from "./Car/Car";
-import { Road } from "./Road";
+import { Fitness } from "../AI/Fitness";
+import { Car } from "../Car/Car";
+
 import { Visualizer } from "./Visualizer";
-import { carAiKey } from "./GlobalConstants";
+import { carAiKey } from "../GlobalConstants";
+import { Road } from "./Road";
 
 export class Render {
     private carCtx: CanvasRenderingContext2D;
