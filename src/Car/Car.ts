@@ -58,7 +58,6 @@ export class Car {
             }
 
             this.controls = new Controls(controlType);
-
             this.image = new Image();
             this.mask = document.createElement("canvas");
 

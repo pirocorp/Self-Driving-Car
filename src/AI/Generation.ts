@@ -6,17 +6,14 @@ import { NeuralNetwork } from "./NeuralNetwork";
 export class Generation {
     public static generateCars(count: number, lane: number): Car[] {
         const cars = this.generateRandomCars(count, lane);
-
         const serializedBrain = localStorage.getItem(carAiKey);
 
         if (serializedBrain) {
-            for (let i = 0; i < cars.length; i++) {              
+            for (let i = 0; i < cars.length; i++) {             
+                const carBrain = NeuralNetwork.parse(serializedBrain);          
+                cars[i].brain = carBrain;
 
-                cars[i].brain = NeuralNetwork.parse(serializedBrain);                
-
-                const carBrain = cars[i].brain;
-
-                if (i != 0 && carBrain) {
+                if (i != 0) {
                     NeuralNetwork.mutate(carBrain, 0.1);                    
                 }
             }
